@@ -27,11 +27,14 @@ uses uClasse; //significa que eu posso usar como tipo de variavel
 procedure TForm1.Button1Click(Sender: TObject);
 var personagem:TPersonagem;
     player:TPlayer;
+    boss:TBoss;
 begin
-  personagem:=TPersonagem.Create(10,5); // crie na memória um endereço com os argumentos aDano e aDefesa, com os valores 10 e 5
-  personagem.nome:='Beatboxer';
-  player:=TPlayer.Create(15,15);
-  player.nome:='Melhor Beatboxer';
+  personagem := TPersonagem.Create(1,1,1); // crie na memória um endereço com os argumentos aDano e aDefesa, com os valores 10 e 5
+  personagem.nome := 'Beatboxer ajuizado';
+  player := TPlayer.Create(5,15,1.3);
+  player.nome := 'Melhor Beatboxer';
+  boss:=TBoss.Create(15,3,1.3);
+  boss.nome := 'Desafiador que sabe Beatboxear';
 end;
 
 end.

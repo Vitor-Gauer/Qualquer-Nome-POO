@@ -1,144 +1,97 @@
 unit uClasse;
 
 interface
-                                                              // Abstração: Como trazer as informações para uma classe
-                                                              // Encapsulamento: Deixando informações relevantes dentro de cada contexto
-  type
-    TPersonagem = class
-      Nome:string;
-      Vida:double;
-      Genero:string;
-      Nivel:integer;
-      Dano:integer;
-      Defesa:integer;
-      DanoExcepcional:double;
-      function getDano:double;
-      function getDefesa:integer;
-      function getLotsOfDamage:double;
-      procedure setDano(aDano:Integer);
-      procedure setDefesa(aDefesa:Integer);
-      procedure setLotsOfDamage(aLotsOfDamage:double);
-      constructor Create(aDano, aDefesa:integer; aDanoExcepcional, aLotsOfDamage:double);
-   end;
-                                                              // Herança: adquirir caracteristicas da classe Pai para classe Filha
-    TPlayer = class(TPersonagem)
-      Experiencia:double;
-      NickName:string;
-      function getDano:double;
-      procedure setDano(aDano:Integer);
+
+type
+  TPersonagem = class
+    Nome:string;
+    Vida:double;
+    Genero:string;
+    Nivel:integer;
+    Dano:integer;
+    Defesa:integer;
+    DanoExcepcional:double;
+    function getDano:double;
+    function getDefesa:integer;
+    function getDanoCalculado:double;
+    procedure setDano(aDano:Integer);
+    procedure setDefesa(aDefesa:Integer);
+    function ReceberDano(aDanoRecebido: Double): Double;
+    constructor Create(aDano, aDefesa:integer; aDanoExcepcional:double);
   end;
-    TBoss = class(TPersonagem)
-      function getDano:double;
-      procedure setDano(aDano:Integer);
+
+  TPlayer = class(TPersonagem)
+    Experiencia:double;
+    NickName:string;
+  end;
+
+  TBoss = class(TPersonagem)
   end;
 
 implementation
 
 uses System.SysUtils;
+
 { TPersonagem }
 
-constructor TPersonagem.Create(aDano, aDefesa: integer; aDanoExcepcional:double);      // Boss e a Player vão ter danos maiores, o TTK é menor.
+constructor TPersonagem.Create(aDano, aDefesa: integer; aDanoExcepcional:double);
 begin
- self.dano:= aDano;
- self.defesa:= aDefesa;
- self.DanoExcepcional:= aDanoExcepcional;
+  self.dano:= aDano;
+  self.defesa:= aDefesa;
+  self.DanoExcepcional:= aDanoExcepcional;
 end;
-                                                               //Personagem Dano
+
 function TPersonagem.getDano: double;
 begin
- result:=DanoExcepcional*(self.dano+(self.nivel{+self.ferramenta}));
+  Result := self.Dano;
 end;
+
+function TPersonagem.getDanoCalculado: double;
+begin
+  Result := DanoExcepcional * (self.dano + self.nivel);
+end;
+
 procedure TPersonagem.setDano(aDano: Integer);
 begin
-  danoexcepcional:=1;
-  try
-     begin
-       if aDano<1 then
-         begin
-          Self.Dano := aDano;
-         end;
-     end;
-  except
-    raise Exception.Create('O Dano tem que ser maior que zero. TPersonagem.setDano');
-  end;
-end;
-                                                                  // Player Dano
-function TPlayer.getDano: double;
-begin
- result:=DanoExcepcional*(self.dano+(self.nivel{+self.ferramenta}));
-end;
-procedure TPlayer.setDano(aDano: Integer);
-begin
-  danoexcepcional:=1.3;
-  try
-     begin
-       if aDano<1 then
-         begin
-          Self.Dano := aDano;
-         end;
-     end;
-  except
-    raise Exception.Create('O Dano tem que ser maior que zero. TPersonagem.setDano');
+  if aDano >= 0 then
+  begin
+    Self.Dano := aDano;
+  end
+  else
+  begin
+    raise Exception.Create('O Dano não pode ser negativo. TPersonagem.setDano');
   end;
 end;
 
-function TBoss.getDano: double;
-begin
- result := DanoExcepcional*(self.dano+(self.nivel{+self.ferramenta}));
-end;
-                                                                    // Boss Dano
-procedure TBoss.setDano(aDano: Integer);
-begin
-  danoexcepcional:=1.3;
-  try
-     begin
-       if aDano<1 then
-         begin
-          Self.Dano := aDano;
-         end;
-     end;
-  except
-    raise Exception.Create('O Dano tem que ser maior que zero. TPersonagem.setDano');
-  end;
-end;
-                                                 //Personagem/Boss/Player Defesa
 function TPersonagem.getDefesa: integer;
 begin
- result := self.defesa+(self.nivel{+self.ferramenta/armadura});
-end;
-function TPersonagem.getLotsOfDamage: double;
-begin
-  result := vida - Self.Dano;
-end;
-procedure TPersonagem.setLotsOfDamage(aLotsOfDamage:double);
-begin
-    try
-     begin
-       if aDano<1 then
-         begin
-          Self.Dano := aDano;
-         end;
-     end;
-  except
-    raise Exception.Create('O Dano tem que ser maior que zero. TPersonagem.setDano');
-  end;
+  result := self.defesa + self.nivel;
 end;
 
 procedure TPersonagem.setDefesa(aDefesa: Integer);
 begin
-  try
-    if aDefesa<1 then
-      begin
-       Self.Defesa:=aDefesa;
-      end;
-  except
-    raise Exception.Create('A Defesa tem que ser maior que zero. TPersonagem.setDano');
+  if aDefesa >= 0 then
+  begin
+    Self.Defesa := aDefesa;
+  end
+  else
+  begin
+    raise Exception.Create('A Defesa não pode ser negativa. TPersonagem.setDefesa');
   end;
 end;
 
-procedure TPersonagem.setLotsOfDamage(aLotsOfDamage: double);
+function TPersonagem.ReceberDano(aDanoRecebido: Double): Double;
+var
+  DanoFinal: Double;
 begin
+  DanoFinal := aDanoRecebido - self.getDefesa;
+  if DanoFinal < 0 then // Dano não pode ser negativo
+    DanoFinal := 0;
+  Self.Vida := Self.Vida - DanoFinal;
+  if Self.Vida < 0 then // Vida não pode ser negativo
+    Self.Vida := 0;
 
+  Result := DanoFinal;
 end;
 
 end.
